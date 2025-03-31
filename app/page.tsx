@@ -1,15 +1,27 @@
 import Hero from "@/components/hero";
-import ConnectSupabaseSteps from "@/components/tutorial/connect-supabase-steps";
-import SignUpUserSteps from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/server";
+import Link from "next/link";
 
 export default async function Home() {
+  const supabase = await createClient();
+  const { data: profiles } = await supabase.from('profiles').select().limit(10);
+
   return (
     <>
       <Hero />
-      <main className="flex-1 flex flex-col gap-6 px-4">
-        <h2 className="font-medium text-xl mb-4">Next steps</h2>
-        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
+      <main className="flex flex-col items-center gap-6 px-4 min-h-[calc(100vh-63.2px)]">
+        <h1 className="text-2xl">Visitez les profiles des autres membres !</h1>
+        <div className="min-w-60 flex flex-col gap-5">
+          {profiles?.map((p) => (
+            <div className="bg-secondary w-full p-2 flex items-center rounded-md">
+              <h2 className="text-xl font-semibold">{p.username}</h2>
+              <Button className="ml-auto" variant={'default'}>
+                <Link href={`/profil/${p.username}`}>Voir</Link>
+              </Button>
+            </div>
+          ))}
+        </div>
       </main>
     </>
   );

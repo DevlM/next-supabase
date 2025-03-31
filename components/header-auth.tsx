@@ -12,6 +12,8 @@ export default async function AuthButton() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const { data: profile, error } = await supabase.from('profiles').select().eq('id', user?.id).limit(1).single();
+
   if (!hasEnvVars) {
     return (
       <>
@@ -32,7 +34,7 @@ export default async function AuthButton() {
               disabled
               className="opacity-75 cursor-none pointer-events-none"
             >
-              <Link href="/sign-in">Sign in</Link>
+              <Link href="/sign-in">Se connecter</Link>
             </Button>
             <Button
               asChild
@@ -41,7 +43,7 @@ export default async function AuthButton() {
               disabled
               className="opacity-75 cursor-none pointer-events-none"
             >
-              <Link href="/sign-up">Sign up</Link>
+              <Link href="/sign-up">S'inscrire</Link>
             </Button>
           </div>
         </div>
@@ -50,20 +52,26 @@ export default async function AuthButton() {
   }
   return user ? (
     <div className="flex items-center gap-4">
-      Hey, {user.email}!
+      Salut {profile?.username || error?.message} !
+      <Button asChild size="sm" variant={"ghost"}>
+        <Link href={"/profil/" + profile.username}>Mon profil</Link>
+      </Button>
+      <Button asChild size="sm" variant={"default"}>
+        <Link href="/dashboard">Modifier mon top</Link>
+      </Button>
       <form action={signOutAction}>
         <Button type="submit" variant={"outline"}>
-          Sign out
+          Déconnexion
         </Button>
       </form>
     </div>
   ) : (
     <div className="flex gap-2">
       <Button asChild size="sm" variant={"outline"}>
-        <Link href="/sign-in">Sign in</Link>
+        <Link href="/sign-in">Se connecter</Link>
       </Button>
       <Button asChild size="sm" variant={"default"}>
-        <Link href="/sign-up">Sign up</Link>
+        <Link href="/sign-up">S'inscrire</Link>
       </Button>
     </div>
   );
